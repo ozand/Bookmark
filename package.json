@@ -4,7 +4,8 @@
   "description": "Browser bookmarklets for web scraping and content extraction",
   "scripts": {
     "build": "node tools/build-all.js",
-    "build:perplexity": "node tools/build-bookmarklet.js perplexity/perplexity_v18.4_readable.js perplexity/perplexity_v18.4.js",
+    "build:perplexity": "node tools/build-bookmarklet.js perplexity/perplexity_v18.5_readable.js perplexity/perplexity_v18.5.js",
+    "build:perplexity:18.4": "node tools/build-bookmarklet.js perplexity/perplexity_v18.4_readable.js perplexity/perplexity_v18.4.js",
     "build:perplexity:18.3": "node tools/build-bookmarklet.js perplexity/perplexity_v18.3_readable.js perplexity/perplexity_v18.3.js",
     "build:perplexity:18.2": "node tools/build-bookmarklet.js perplexity/perplexity_v18.2_readable.js perplexity/perplexity_v18.2.js",
     "build:perplexity:18.1": "node tools/build-bookmarklet.js perplexity/perplexity_v18.1_readable.js perplexity/perplexity_v18.1.js",

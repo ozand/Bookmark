@@ -19,6 +19,7 @@ const { buildBookmarklet } = require('./build-bookmarklet.js');
 // Format: [sourceFile, outputFile, description]
 const BOOKMARKLETS = [
     // Perplexity bookmarklets
+    ['perplexity/perplexity_v18.5_readable.js', 'perplexity/perplexity_v18.5.js', 'Perplexity v18.5'],
     ['perplexity/perplexity_v18.4_readable.js', 'perplexity/perplexity_v18.4.js', 'Perplexity v18.4'],
     ['perplexity/perplexity_v18.3_readable.js', 'perplexity/perplexity_v18.3.js', 'Perplexity v18.3'],
     ['perplexity/perplexity_v18.2_readable.js', 'perplexity/perplexity_v18.2.js', 'Perplexity v18.2'],
