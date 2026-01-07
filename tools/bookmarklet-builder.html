@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookmarklet Builder - Test & Build Tool</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        textarea {
+            min-height: 300px;
+            resize: vertical;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-build {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-build:hover {
+            background: #45a049;
+        }
+
+        .btn-test {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-test:hover {
+            background: #0b7dda;
+        }
+
+        .btn-clear {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-clear:hover {
+            background: #da190b;
+        }
+
+        .btn-load {
+            background: #FF9800;
+            color: white;
+        }
+
+        .btn-load:hover {
+            background: #e68900;
+        }
+
+        .bookmarklet-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #9C27B0;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .bookmarklet-link:hover {
+            background: #7B1FA2;
+        }
+
+        .output-box {
+            background: #f8f8f8;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            word-break: break-all;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            background: #E3F2FD;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .stat-label {
+            font-weight: bold;
+            color: #1976D2;
+        }
+
+        .presets {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .preset-btn {
+            background: #607D8B;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .preset-btn:hover {
+            background: #546E7A;
+        }
+
+        .info {
+            background: #FFF3E0;
+            border-left: 4px solid #FF9800;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .error {
+            background: #FFEBEE;
+            border-left: 4px solid #f44336;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            color: #c62828;
+        }
+
+        .success {
+            background: #E8F5E9;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            color: #2E7D32;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Bookmarklet Builder</h1>
+
+    <div class="info">
+        <strong>ℹ️ Usage:</strong>
+        <ul style="margin: 10px 0 0 20px;">
+            <li>Write or load JavaScript code in the editor</li>
+            <li>Click "Build Bookmarklet" to generate</li>
+            <li>Drag the purple link to your bookmarks bar</li>
+            <li>Click "Test Code" to execute in this page</li>
+        </ul>
+    </div>
+
+    <div class="presets">
+        <button class="preset-btn" onclick="loadPreset('perplexity')">Load Perplexity v18.2</button>
+        <button class="preset-btn" onclick="loadPreset('perplexity-18.1')">Load Perplexity v18.1</button>
+        <button class="preset-btn" onclick="loadPreset('alert')">Simple Alert</button>
+        <button class="preset-btn" onclick="loadPreset('pageinfo')">Page Info</button>
+    </div>
+
+    <div class="container">
+        <div class="panel">
+            <h2>Input</h2>
+
+            <label for="bookmarklet-title">Title:</label>
+            <input type="text" id="bookmarklet-title" value="My Bookmarklet" placeholder="Bookmarklet name">
+
+            <label for="code-input">Code (without javascript: prefix):</label>
+            <textarea id="code-input" placeholder="// Your code here
+alert('Hello from bookmarklet!');"></textarea>
+
+            <div class="button-group">
+                <button class="btn-build" onclick="buildBookmarklet()">🔨 Build Bookmarklet</button>
+                <button class="btn-test" onclick="testCode()">▶️ Test Code</button>
+                <button class="btn-clear" onclick="clearCode()">🗑️ Clear</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Output</h2>
+
+            <div id="status-message"></div>
+
+            <label>Drag to Bookmarks:</label>
+            <a id="bookmarklet-link" class="bookmarklet-link" href="#" onclick="return false;">My Bookmarklet</a>
+
+            <label>Bookmarklet Code:</label>
+            <div id="output-code" class="output-box">Click "Build" to generate bookmarklet...</div>
+
+            <label>HTML Code:</label>
+            <div id="html-output" class="output-box"></div>
+
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-label">Input Size:</span>
+                    <span id="input-size">0 bytes</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Output Size:</span>
+                    <span id="output-size">0 bytes</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Compression:</span>
+                    <span id="compression">0%</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Status:</span>
+                    <span id="status">Ready</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Presets
+        const PRESETS = {
+            'perplexity': `// Perplexity v18.2 - Extract reasoning, sources, and answers
+// Load this file and click "Build" to create bookmarklet
+
+(async function() {
+    const d = document;
+    const w = m => new Promise(r => setTimeout(r, m));
+
+    // Your code here...
+    alert('This is a placeholder. Load the full version from perplexity_v18.2_readable.js');
+})();`,
+
+            'perplexity-18.1': `// Perplexity v18.1 - Extract sources per message
+(async function() {
+    const d = document;
+    const w = m => new Promise(r => setTimeout(r, m));
+
+    // Your code here...
+    alert('This is a placeholder. Load the full version from perplexity_v18.1_readable.js');
+})();`,
+
+            'alert': `alert('Hello from bookmarklet!');`,
+
+            'pageinfo': `const info = {
+    title: document.title,
+    url: window.location.href,
+    date: new Date().toISOString()
+};
+
+console.log('Page Info:', info);
+alert(JSON.stringify(info, null, 2));`
+        };
+
+        function loadPreset(name) {
+            if (PRESETS[name]) {
+                document.getElementById('code-input').value = PRESETS[name];
+                document.getElementById('bookmarklet-title').value = name.replace('-', ' ').replace(/^./, s => s.toUpperCase());
+                updateStats();
+                showMessage('Preset loaded: ' + name, 'success');
+            }
+        }
+
+        function buildBookmarklet() {
+            const title = document.getElementById('bookmarklet-title').value || 'Bookmarklet';
+            let code = document.getElementById('code-input').value;
+
+            if (!code.trim()) {
+                showMessage('Please enter some code', 'error');
+                return;
+            }
+
+            try {
+                // Wrap in IIFE if not already wrapped
+                if (!code.trim().startsWith('(function')) {
+                    code = '(function(){' + code + '})();';
+                }
+
+                // Create bookmarklet
+                const bookmarklet = 'javascript:' + encodeURIComponent(code);
+
+                // Update UI
+                document.getElementById('bookmarklet-link').href = bookmarklet;
+                document.getElementById('bookmarklet-link').textContent = title;
+                document.getElementById('output-code').textContent = bookmarklet;
+                document.getElementById('html-output').textContent = `<a href="${bookmarklet}">${title}</a>`;
+
+                // Update stats
+                const inputSize = code.length;
+                const outputSize = bookmarklet.length;
+                const compression = Math.round((1 - outputSize / inputSize) * 100);
+
+                document.getElementById('input-size').textContent = inputSize + ' bytes';
+                document.getElementById('output-size').textContent = outputSize + ' bytes';
+                document.getElementById('compression').textContent = compression + '%';
+                document.getElementById('status').textContent = '✅ Valid';
+
+                showMessage('Bookmarklet built successfully!', 'success');
+            } catch (e) {
+                showMessage('Error: ' + e.message, 'error');
+                document.getElementById('status').textContent = '❌ Error';
+            }
+        }
+
+        function testCode() {
+            const code = document.getElementById('code-input').value;
+
+            if (!code.trim()) {
+                showMessage('Please enter some code to test', 'error');
+                return;
+            }
+
+            try {
+                eval(code);
+                showMessage('Code executed successfully! Check console for output.', 'success');
+            } catch (e) {
+                showMessage('Error: ' + e.message, 'error');
+            }
+        }
+
+        function clearCode() {
+            document.getElementById('code-input').value = '';
+            document.getElementById('bookmarklet-title').value = 'My Bookmarklet';
+            document.getElementById('output-code').textContent = 'Click "Build" to generate bookmarklet...';
+            document.getElementById('html-output').textContent = '';
+            document.getElementById('input-size').textContent = '0 bytes';
+            document.getElementById('output-size').textContent = '0 bytes';
+            document.getElementById('compression').textContent = '0%';
+            document.getElementById('status').textContent = 'Ready';
+            showMessage('Cleared', 'success');
+        }
+
+        function updateStats() {
+            const code = document.getElementById('code-input').value;
+            document.getElementById('input-size').textContent = code.length + ' bytes';
+        }
+
+        function showMessage(message, type) {
+            const container = document.getElementById('status-message');
+            container.className = type;
+            container.textContent = message;
+
+            setTimeout(() => {
+                container.className = '';
+                container.textContent = '';
+            }, 5000);
+        }
+
+        // Auto-update stats on input
+        document.getElementById('code-input').addEventListener('input', updateStats);
+
+        // Initial load
+        updateStats();
+    </script>
+</body>
+</html>

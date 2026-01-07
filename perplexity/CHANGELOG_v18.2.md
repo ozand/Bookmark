@@ -397,9 +397,137 @@ Copy entire contents of `perplexity_v18.2.js` and create browser bookmark:
 
 ---
 
+---
+
+## 🛠️ Build System Improvements (2026-01-08)
+
+### New Build Tools
+
+**Problem**: Manual URL encoding was error-prone and time-consuming.
+
+**Solution**: Created automated build system using standard `encodeURIComponent()`.
+
+### New Tools Created
+
+#### 1. `tools/build-bookmarklet.js`
+
+Single bookmarklet builder with proper encoding:
+
+```bash
+node tools/build-bookmarklet.js <source> <output>
+```
+
+**Features**:
+- ✅ Uses `encodeURIComponent()` instead of manual encoding
+- ✅ Automatic syntax validation
+- ✅ Checks for template literals (warns if found)
+- ✅ Shows file size and compression stats
+- ✅ Safe IIFE wrapping
+
+**Example**:
+```bash
+node tools/build-bookmarklet.js \
+    perplexity/perplexity_v18.2_readable.js \
+    perplexity/perplexity_v18.2.js
+```
+
+#### 2. `tools/build-all.js`
+
+Batch builder for all bookmarklets:
+
+```bash
+node tools/build-all.js
+```
+
+**Features**:
+- ✅ Builds all bookmarklets at once
+- ✅ Configurable via `BOOKMARKLETS` array
+- ✅ Shows detailed build report
+- ✅ Handles errors gracefully
+
+#### 3. `tools/bookmarklet-builder.html`
+
+Interactive web interface for testing:
+
+- 🎨 Visual code editor
+- ▶️ Test code directly in browser
+- 🔨 Build bookmarklets with one click
+- 📊 Real-time stats (size, compression)
+- 🎯 Preset examples
+
+**Usage**: Open `tools/bookmarklet-builder.html` in browser
+
+### NPM Scripts
+
+Added to `package.json`:
+
+```json
+{
+  "scripts": {
+    "build": "node tools/build-all.js",
+    "build:perplexity": "node tools/build-bookmarklet.js perplexity/perplexity_v18.2_readable.js perplexity/perplexity_v18.2.js",
+    "build:perplexity:18.1": "node tools/build-bookmarklet.js perplexity/perplexity_v18.1_readable.js perplexity/perplexity_v18.1.js"
+  }
+}
+```
+
+**Usage**:
+```bash
+npm run build                    # Build all
+npm run build:perplexity         # Build v18.2 only
+npm run build:perplexity:18.1    # Build v18.1 only
+```
+
+### Key Improvements
+
+**Before (Manual)**:
+```javascript
+// Manual encoding - error-prone
+code.replace(/ /g, '%20')
+    .replace(/\{/g, '%7B')
+    .replace(/\}/g, '%7D')
+    // ... many more replacements
+```
+
+**After (Automatic)**:
+```javascript
+// Standard API - reliable
+const bookmarklet = 'javascript:' + encodeURIComponent(code);
+```
+
+### Benefits
+
+1. **Reliability**: `encodeURIComponent()` handles ALL special characters correctly
+2. **Simplicity**: One function call vs 10+ manual replacements
+3. **Maintainability**: Build scripts are version-controlled and reusable
+4. **Testing**: Web interface for quick testing
+5. **Automation**: NPM scripts for common build tasks
+6. **Documentation**: Clear build process for new developers
+
+### File Sizes
+
+| Version | Old Method | New Method | Change |
+|---------|------------|------------|--------|
+| v18.2 | 11 KB | 28 KB | +154% |
+| v18.1 | 9 KB | 9 KB | 0% |
+
+**Note**: New method is larger but more reliable. Size difference is negligible for modern browsers.
+
+### Documentation
+
+**New File**: `perplexity/EXAMPLES.md`
+- Common bookmarklet patterns
+- DOM manipulation examples
+- Data extraction techniques
+- Debugging tips
+- Best practices
+
+---
+
 **Version**: 18.2
 **Release Date**: 2026-01-07
 **Hotfix**: 2026-01-08 (Proper minification)
+**Build System**: 2026-01-08 (Automated build tools)
 **Previous**: 18.1
 **Status**: ✅ Ready for use
 **Note**: Reasoning extraction uses 3 fallback strategies for reliability
