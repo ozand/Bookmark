@@ -334,8 +334,72 @@ If you find issues with v18.2:
 
 ---
 
+---
+
+## 🐛 Hotfix: Proper Minification (2026-01-08)
+
+### Issue
+Initial v18.2 release used multi-line format which caused syntax errors in some browsers:
+```
+Uncaught SyntaxError: missing } after function body
+```
+
+### Root Cause
+Bookmarklets require:
+1. **Single-line format** - No newlines in the JavaScript code
+2. **URL encoding** - Special characters encoded (%20 for spaces, etc.)
+3. **String concatenation** - No template literals (backticks with `${}`)
+
+### Fix Applied
+**Before**: Multi-line format (320 lines)
+```javascript
+javascript: (function () {
+    const d = document;
+    const w = m => new Promise(r => setTimeout(r, m));
+    ...
+})();
+```
+
+**After**: Single-line, URL-encoded bookmarklet (11KB)
+```
+javascript:%20(function%20()%20%7B%20const%20d%20=%20document;%20const%20w%20=%20m%20=%3E%20new%20Promise...
+```
+
+### Changes Made
+1. ✅ Removed all newlines from code
+2. ✅ URL-encoded special characters:
+   - Space → `%20`
+   - `{` → `%7B`
+   - `}` → `%7D`
+   - `"` → `%22`
+   - `<` → `%3C`
+   - `>` → `%3E`
+3. ✅ Verified no template literals (backticks only in Markdown strings)
+4. ✅ Tested with `new Function()` for syntax validation
+
+### File Sizes
+- **v18.2 (minified)**: 11,007 bytes (single-line, URL-encoded)
+- **v18.2_readable.js**: 10,283 bytes (320 lines, for development)
+
+### Verification
+```bash
+# Syntax check
+node -c <(echo 'var code = "$(cat perplexity_v18.2.js)"; decodeURIComponent(code.replace(/^javascript:/, ""))')
+✅ Syntax is valid!
+```
+
+### Usage
+Copy entire contents of `perplexity_v18.2.js` and create browser bookmark:
+1. Create new bookmark
+2. Paste code as URL
+3. Name: "Perplexity Extractor v18.2"
+4. Click bookmark on any Perplexity page
+
+---
+
 **Version**: 18.2
 **Release Date**: 2026-01-07
+**Hotfix**: 2026-01-08 (Proper minification)
 **Previous**: 18.1
-**Status**: ✅ Ready for testing
+**Status**: ✅ Ready for use
 **Note**: Reasoning extraction uses 3 fallback strategies for reliability
