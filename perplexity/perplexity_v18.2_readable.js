@@ -15,8 +15,8 @@ javascript: (function () {
         if ("li" == t) c = "\n- " + c.trim();
         if ("strong" == t || "b" == t) return " **" + c.trim() + "** ";
         if ("em" == t || "i" == t) return " *" + c.trim() + "* ";
-        if ("a" == t) return ` [${c.trim()}](${n.href}) `;
-        if ("img" == t) return `\n![img](${n.src})\n`;
+        if ("a" == t) return " [" + c.trim() + "](" + n.href + ") ";
+        if ("img" == t) return "\n![img](" + n.src + ")\n";
         if ("code" == t) return " `" + c + "` ";
         if ("pre" == t) return "\n```\n" + n.innerText + "\n```\n";
         if (t.startsWith("h")) return "\n" + "#".repeat(parseInt(t[1])) + " " + c.trim() + "\n\n";
@@ -28,9 +28,9 @@ javascript: (function () {
 
         // METADATA
         o += "## Metadata\n";
-        o += `- **Date**: ${new Date().toISOString()}\n`;
-        o += `- **URL**: ${window.location.href}\n`;
-        o += `- **Title**: ${document.title}\n\n---\n\n`;
+        o += "- **Date**: " + new Date().toISOString() + "\n";
+        o += "- **URL**: " + window.location.href + "\n";
+        o += "- **Title**: " + document.title + "\n\n---\n\n";
 
         // PROMPT
         try {
@@ -49,7 +49,7 @@ javascript: (function () {
                 for (let i = 0; i < reasoningButtons.length; i++) {
                     let btn = reasoningButtons[i];
                     let stepCount = btn.innerText.match(/\d+/)[0];
-                    o += `### Message ${i + 1} (${stepCount} steps)\n`;
+                    o += "### Message " + (i + 1) + " (" + stepCount + " steps)\n";
 
                     // Store parent to find expanded content
                     let parentContainer = btn.closest('div[class*="flex"], div[class*="gap"], div[class*="col"]');
@@ -156,7 +156,7 @@ javascript: (function () {
                 for (let i = 0; i < sourceButtons.length; i++) {
                     let btn = sourceButtons[i];
                     let sourceCount = btn.innerText.match(/\d+/)[0];
-                    o += `### Message ${i + 1} (${sourceCount} sources)\n`;
+                    o += "### Message " + (i + 1) + " (" + sourceCount + " sources)\n";
 
                     btn.click();
                     await w(2000);
@@ -167,7 +167,7 @@ javascript: (function () {
                         sl.forEach(l => {
                             if (l.href && !l.href.includes("perplexity") && !u.has(l.href)) {
                                 u.add(l.href);
-                                o += `* [${l.innerText.split("\n")[0]}](${l.href})\n`;
+                                o += "* [" + l.innerText.split("\n")[0] + "](" + l.href + ")\n";
                             }
                         });
                     }
@@ -200,7 +200,7 @@ javascript: (function () {
                     sl.forEach(l => {
                         if (l.href && !l.href.includes("perplexity") && !u.has(l.href)) {
                             u.add(l.href);
-                            o += `* [${l.innerText.split("\n")[0]}](${l.href})\n`;
+                            o += "* [" + l.innerText.split("\n")[0] + "](" + l.href + ")\n";
                         }
                     });
                     o += "\n---\n\n";
@@ -270,7 +270,7 @@ javascript: (function () {
                 im.forEach(m => {
                     if (m.src && !m.src.includes("favicon") && m.naturalWidth > 100 && !us.has(m.src)) {
                         us.add(m.src);
-                        o += `![ref](${m.src})\n`;
+                        o += "![ref](" + m.src + ")\n";
                     }
                 });
             }
@@ -296,7 +296,7 @@ javascript: (function () {
                         questions.forEach((q, i) => {
                             const text = q.innerText.trim();
                             if (text && text.length > 10) {
-                                o += `${i + 1}. ${text}\n`;
+                                o += (i + 1) + ". " + text + "\n";
                             }
                         });
                         o += "\n---\n\n";
