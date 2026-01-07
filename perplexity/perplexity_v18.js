@@ -10,8 +10,8 @@ const md=n=>{
   if("li"==t)c="\n- "+c.trim();
   if("strong"==t||"b"==t)return" **"+c.trim()+"** ";
   if("em"==t||"i"==t)return" *"+c.trim()+"* ";
-  if("a"==t)return` [${c.trim()}](${n.href}) `;
-  if("img"==t)return`\n![img](${n.src})\n`;
+  if("a"==t)return" ["+c.trim()+"]("+n.href+") ";
+  if("img"==t)return"\n![img]("+n.src+")\n";
   if("code"==t)return" `"+c+"` ";
   if("pre"==t)return"\n```\n"+n.innerText+"\n```\n";
   if(t.startsWith("h"))return"\n"+"#".repeat(parseInt(t[1]))+" "+c.trim()+"\n\n";
@@ -20,10 +20,10 @@ const md=n=>{
 async function x(){
   let o="# Perplexity Report v18\n\n";
   o+="## Metadata\n";
-  o+=`- **Date**: ${new Date().toISOString()}\n`;
-  o+=`- **URL**: ${window.location.href}\n`;
-  o+=`- **Title**: ${document.title}\n\n---\n\n`;
-  try{let h=d.querySelector("h1");if(h)o+="## Prompt\n"+h.innerText.trim()+"\n\n---\n\n"}catch(e){}
+  o+="- **Date**: "+new Date().toISOString()+"\n";
+  o+="- **URL**: "+window.location.href+"\n";
+  o+="- **Title**: "+document.title+"\n\n---\n\n";
+  try{let h=d.querySelector("h1");if(h)o+="## Prompt\n"+h.innerText.trim()+"\n\n---\n\n";}catch(e){}
   try{
     let b=Array.from(d.querySelectorAll("button")).find(x=>/steps|reasoning/i.test(x.innerText));
     if(b){
@@ -34,14 +34,14 @@ async function x(){
         gs.forEach((g,i)=>{
           let t=g.querySelector(".pr-sm");
           if(t&&t.innerText.trim()!=="Finished"){
-            o+=`### Step ${i+1}\n${t.innerText.trim()}\n\n`;
+            o+="### Step "+(i+1)+"\n"+t.innerText.trim()+"\n\n";
             let sq=Array.from(g.querySelectorAll(".bg-subtler"));
             if(sq.length){
               let qt=sq.map(el=>el.innerText.replace(/search/gi,"").trim()).filter(t=>t.length>0);
-              if(qt.length)o+=`> **Queries:** ${qt.join(", ")}\n\n`;
+              if(qt.length)o+="> **Queries:** "+qt.join(", ")+"\n\n";
             }
             let l=Array.from(g.querySelectorAll("a"));
-            if(l.length)o+=l.map(z=>`-[${z.innerText.replace(/\n/g," ")}](${z.href})`).join("\n")+"\n";
+            if(l.length)o+=l.map(z=>"- ["+z.innerText.replace(/\n/g," ")+"]("+z.href+")").join("\n")+"\n";
             o+="\n";
           }
         });
@@ -60,7 +60,7 @@ async function x(){
         sl.forEach(l=>{
           if(l.href&&!l.href.includes("perplexity")&&!u.has(l.href)){
             u.add(l.href);
-            o+=`* [${l.innerText.split("\n")[0]}](${l.href})\n`;
+            o+="* ["+l.innerText.split("\n")[0]+"]("+l.href+")\n";
           }
         });
         o+="\n---\n\n";
@@ -99,7 +99,7 @@ async function x(){
       im.forEach(m=>{
         if(m.src&&!m.src.includes("favicon")&&m.naturalWidth>100&&!us.has(m.src)){
           us.add(m.src);
-          o+=`![ref](${m.src})\n`;
+          o+="![ref]("+m.src+")\n";
         }
       });
     }
@@ -114,7 +114,7 @@ async function x(){
           o+="\n---\n\n## Related Questions\n";
           questions.forEach((q,i)=>{
             const text=q.innerText.trim();
-            if(text&&text.length>10){o+=`${i+1}. ${text}\n`}
+            if(text&&text.length>10){o+=(i+1)+". "+text+"\n"}
           });
           o+="\n---\n\n";
           break;
