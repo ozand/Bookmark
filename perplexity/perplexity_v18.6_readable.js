@@ -249,7 +249,7 @@ javascript: (function () {
         let bl = new Blob([o.replace(/\n{3,}/g, "\n\n")], { type: "text/markdown" }),
             el = d.createElement("a");
         el.href = URL.createObjectURL(bl);
-        el.download = "perplexity_v18.2_" + new Date().toISOString().slice(0, 10) + ".md";
+        el.download = "perplexity_v18.6_" + new Date().toISOString().slice(0, 10) + ".md";
         d.body.appendChild(el);
         el.click();
         d.body.removeChild(el);
