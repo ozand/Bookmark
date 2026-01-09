@@ -1,0 +1,154 @@
+version: "1.0"
+category: "perplexity-automation"
+last_updated: "2026-01-10"
+
+errors:
+  - id: "PERPLEXITY-001"
+    title: "Enable Deep Research Mode in Automation"
+    severity: "low"
+    scope: "project"
+
+    problem: |
+      Deep Research mode was disabled in automation script due to previous
+      Pro limit error. User wanted to enable Deep Research mode for queries.
+
+    solution:
+      code: |
+        // In scripts/deep-research-auto-with-google.js
+
+        const CONFIG = {
+            // Change this line
+            deepResearch: true,   // Was: false
+
+            // Fix session paths if needed
+            googleSessionFile: './scripts/google-session/session.json',
+            perplexitySessionFile: './scripts/perplexity-session/session.json',
+        };
+
+    tags: ["perplexity", "deep-research", "configuration"]
+    context: |
+      Deep Research mode requires Pro account but appears to have daily/weekly
+      usage limits. If Pro limit is reached, automation will fail with banner
+      detection.
+
+  - id: "PERPLEXITY-002"
+    title: "Pro Limit Banner Detection"
+    severity: "medium"
+    scope: "project"
+
+    problem: |
+      Need to detect when Perplexity Pro limit is reached during Deep Research
+      queries to provide clear error messages and avoid timeout.
+
+    solution:
+      code: |
+        async function waitForCompletion(page, maxTime) {
+            console.log('[Perplexity] ⏳ Waiting for query completion...');
+
+            // Wait for banner to appear
+            await delay(2000);
+
+            // Check for Pro limit banner
+            const limitDetected = await page.evaluate(() => {
+                const banners = Array.from(document.querySelectorAll(
+                    '[class*="banner"], [role="alert"], [class*="alert"]'
+                ));
+                return banners.some(b => {
+                    const text = b.textContent.toLowerCase();
+                    return text.includes('limit') ||
+                           text.includes('reached') ||
+                           text.includes('pro') ||
+                           text.includes('quota');
+                });
+            });
+
+            if (limitDetected) {
+                console.log('[Perplexity] ⚠️ Pro limit detected!');
+                console.log('[Perplexity] 💡 Suggestion: Use different Google account');
+
+                // Take screenshot for debugging
+                await page.screenshot({
+                    path: 'screenshots/pro-limit-detected.png',
+                    fullPage: true
+                });
+                return false;
+            }
+
+            // Continue with normal completion monitoring...
+        }
+
+    tags: ["error-detection", "pro-limit", "banner-detection"]
+    context: |
+      Add this at the start of waitForCompletion() function. Checks for
+      Perplexity Pro limit banners and provides clear guidance to user.
+
+patterns:
+  - id: "PERPLEXITY-P001"
+    title: "Content Length Monitoring for Query Completion"
+    scope: "project"
+
+    pattern: |
+      Monitor main#root innerText length to detect when Deep Research query
+      completes. Deep Research queries have variable completion times, so
+      simple timeouts don't work well.
+
+    code: |
+      let initialLength = await page.evaluate(() => {
+          return document.querySelector('main#root')?.innerText?.length || 0;
+      });
+
+      let lastLength = initialLength;
+      let noChangeCount = 0;
+
+      while (Date.now() - start < maxTime) {
+          const currentLength = await page.evaluate(() => {
+              return document.querySelector('main#root')?.innerText?.length || 0;
+          });
+
+          // Content grew significantly
+          if (currentLength > initialLength + 100) {
+              // Check if content is stable (no longer growing)
+              if (currentLength === lastLength) {
+                  noChangeCount++;
+                  if (noChangeCount >= 2) {
+                      console.log('[Perplexity] ✅ Query completed!');
+                      return true;
+                  }
+              } else {
+                  noChangeCount = 0;
+              }
+              lastLength = currentLength;
+          }
+
+          await delay(CONFIG.pollInterval);
+      }
+
+    tags: ["completion-detection", "deep-research", "monitoring"]
+    benefits:
+      - Works with variable completion times
+      - No fixed timeout assumptions
+      - Detects actual completion vs still loading
+      - Reliable for Deep Research mode
+
+decisions:
+  - id: "PERPLEXITY-D001"
+    title: "Use Current Google Account for Deep Research"
+    scope: "project"
+
+    decision: |
+      Continue using ozand.ru@gmail.com instead of creating new Google account
+      or implementing account rotation.
+
+    reasoning: |
+      Testing showed Pro limit had been reset or was temporary. Current account
+      has available Deep Research quota. No need to over-engineer rotation
+      system until limits are actually encountered.
+
+    alternatives_considered:
+      - Create new Google account
+      - Implement account rotation across multiple accounts
+      - Wait for limit reset (unknown timing)
+
+    impact: |
+      Simplified workflow, faster iteration, validated approach before
+      building complex rotation system.
